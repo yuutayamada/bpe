@@ -43,10 +43,15 @@
     org->html-file-name))
 
 (defun bpe:replace (list)
-  (loop for (regexp to-string) in list do
+  (loop with to-str = ""
+        for (regexp to-string) in list do
         (goto-char (point-min))
         (while (re-search-forward regexp nil t)
-          (replace-match to-string nil nil))))
+          (typecase to-string
+            (number (setq to-str (match-string to-string))
+                    (replace-match to-str nil nil))
+            (string
+             (replace-match to-string nil nil))))))
 
 (defun bpe:replace-newline (file)
   (let* ((base (buffer-name)))
