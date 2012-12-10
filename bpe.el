@@ -29,10 +29,18 @@
 (defvar bpe:blog-name "blog-name")
 
 (defvar bpe:removing-list
-  '(("^[\n\t]" "")
-    ("</p>[\n\t]" "</p>")
-    ("[\n\t]<" "<")
-    (">[\n\t]" ">")))
+  '(("\\(</?tbody>\\)\n+" 1)
+    ("\\(<table.+>\\)\n+" 1)
+    ("\\(</table>\\)\n+" 1)
+    ("\\(</caption>\\)\n+" 1)
+    ("\\(</colgroup>\\)\n+" 1)
+    ("\\(<col class=.+ />\\)\n+" 1)
+    ("\\(</tr>\\)\n+" 1)
+    ("\\(</p>\\)\n+" 1)
+    ("\\(</h[0-9]>\\)\n" 1)
+    ("\\(<div.+>\\)\n+" 1)
+    ("\\(</div>\\)\n+" 1)
+    ("\\(</pre>\\)\n+" 1)))
 
 (defun bpe:create-html-and-fetch-filename ()
   (let* ((org->html-file-name
