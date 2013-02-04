@@ -29,7 +29,9 @@
 (defvar bpe:blog-name "blog-name")
 
 (defvar bpe:removing-list
-  '(("\\(</?tbody>\\)\n+" 1)
+  '(("\\(</?ol>\\)\n+" 1)
+    ("\\(</li>\\)\n+" 1)
+    ("\\(</?tbody>\\)\n+" 1)
     ("\\(<table.+>\\)\n+" 1)
     ("\\(</table>\\)\n+" 1)
     ("\\(</caption>\\)\n+" 1)
