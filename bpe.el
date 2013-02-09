@@ -1,4 +1,4 @@
-;;; -*- coding: utf-8 -*-
+;;; -*- coding: utf-8 mode: emacs-lisp -*-
 ;;; bpe.el --- Blogger Post progrom for Emacs
 
 ;; Copyright (C) 2012 by Yuta Yamada
