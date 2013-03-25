@@ -23,6 +23,7 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (eval-when-compile (require 'cl))
+(require 'org)
 
 ;; google blog
 (defvar bpe:account   "your-user-account@gmail.com")
@@ -50,7 +51,11 @@
   (let* ((org->html-file-name
           (replace-regexp-in-string
            "org$" "html" buffer-file-truename)))
-    (org-export-as-html 23 nil nil nil 'string) ; 23 = HTML
+    (case (string-to-number
+           (replace-regexp-in-string "\\." "" org-version))
+      ;; 23 = HTML
+      (794 (org-export-as-html 23 nil nil t))
+      (t   (org-export-as-html 23 nil nil nil 'string)))
     (bpe:replace-newline org->html-file-name)
     org->html-file-name))
 
