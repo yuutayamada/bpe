@@ -28,6 +28,7 @@
 ;; google blog
 (defvar bpe:account   "your-user-account@gmail.com")
 (defvar bpe:blog-name "blog-name")
+(defvar bpe:lang      "ja_JP.UTF-8")
 
 (defvar bpe:removing-list
   '(("\n\\(<p>\\)" 1)
@@ -90,7 +91,7 @@
                       (bpe:create-html-and-fetch-filename)
                     (buffer-string))))
     (async-shell-command
-     (concat "google blogger post --draft -u " bpe:account
+     (concat "LANG=" bpe:lang " google blogger post --draft -u " bpe:account
              " --blog '" bpe:blog-name "'"
              " --title '" title "' " content))))
 
