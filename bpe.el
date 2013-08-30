@@ -88,17 +88,25 @@
   (if (re-search-forward "^.\+TITLE: \\(.+\\)" nil t)
       (match-string 1)))
 
-(defun bpe:blog-post ()
+(defun bpe:blog-post (&optional update)
   (interactive)
-  (let* ((title (or (bpe:search-title-word)
-                    (read-string "title here: ")))
-         (content (if (string-match "\\.org$" (buffer-name))
-                      (bpe:create-html-and-fetch-filename)
-                    (buffer-string))))
-    (async-shell-command
-     (concat "LANG=" bpe:lang " google blogger post --draft -u " bpe:account
-             " --blog '" bpe:blog-name "'"
-             " --title '" title "' " content))))
+  (lexical-let*
+      ((title (or (bpe:search-title-word)
+                  (read-string "title here: ")))
+       (blogger (concat "LANG=" bpe:lang " google blogger "))
+       (blog-and-title
+        (concat " --blog '" bpe:blog-name "'" " --title '" title "' "))
+       (content (if (string-match "\\.org$" (buffer-name))
+                    (bpe:create-html-and-fetch-filename)
+                  (buffer-string)))
+       (delete (concat blogger "delete " blog-and-title))
+       (post   (concat blogger "post --draft -u " bpe:account
+                       blog-and-title content))
+       (command (if (or bpe:update-by-default update current-prefix-arg)
+                    (concat delete " && " post)
+                  post)))
+    (async-shell-command command "*bpe*")))
+
 
 (provide 'bpe)
 
