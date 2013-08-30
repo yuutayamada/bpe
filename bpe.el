@@ -107,7 +107,7 @@
                   post)))
     (async-shell-command command "*bpe*")))
 
-(defun bpe:update-blog-article ()
+(defun bpe:update-article ()
   (interactive)
   (bpe:post-article t))
 
