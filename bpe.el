@@ -88,7 +88,7 @@
   (if (re-search-forward "^.\+TITLE: \\(.+\\)" nil t)
       (match-string 1)))
 
-(defun bpe:blog-post (&optional update)
+(defun bpe:post-article (&optional update)
   (interactive)
   (lexical-let*
       ((title (or (bpe:search-title-word)
@@ -109,7 +109,7 @@
 
 (defun bpe:update-blog-article ()
   (interactive)
-  (bpe:blog-post t))
+  (bpe:post-article t))
 
 (provide 'bpe)
 
