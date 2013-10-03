@@ -30,10 +30,13 @@
 (defvar bpe:blog-name "blog-name")
 (defvar bpe:lang      "ja_JP.UTF-8")
 (defvar bpe:update-by-default nil
-  "If this value was non-nil, update article if there are same title's article(s)")
+  "If this value was non-nil, update article if there are same title's
+article(s)")
 
 (defvar bpe:no-ask nil
-  "Attach --yes option when user update(delete old article)")
+  "Attach --yes option when user update(delete old article) if this variable
+was non-nil")
+
 
 (defvar bpe:removing-list
   '(("\n\\(<p>\\)" 1)
