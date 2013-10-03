@@ -32,6 +32,9 @@
 (defvar bpe:update-by-default nil
   "If this value was non-nil, update article if there are same title's article(s)")
 
+(defvar bpe:no-ask nil
+  "Attach --yes option when user update(delete old article)")
+
 (defvar bpe:removing-list
   '(("\n\\(<p>\\)" 1)
     ("\\(</?ol>\\)\n+" 1)
@@ -107,7 +110,8 @@
        (content (if (string-match "\\.org$" (buffer-name))
                     (bpe:create-html-and-fetch-filename)
                   (buffer-string)))
-       (delete (concat blogger "delete " blog-and-title))
+       (delete (concat blogger "delete " blog-and-title
+                       (if bpe:no-ask " --yes" "")))
        (post   (concat blogger "post --draft -u " bpe:account
                        tags-formatted blog-and-title content))
        (command (if (or bpe:update-by-default update current-prefix-arg)
