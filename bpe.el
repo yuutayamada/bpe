@@ -83,16 +83,24 @@
     (save-buffer)
     (switch-to-buffer base)))
 
-(defun bpe:search-title-word ()
+(defun bpe:get-option (title-or-tag)
+  (interactive)
   (goto-char (point-min))
-  (if (re-search-forward "^.\+TITLE: \\(.+\\)" nil t)
-      (match-string 1)))
+  (let ((option (case title-or-tag
+                  (:title "TITLE")
+                  (:tag   "TAGS"))))
+    (if (re-search-forward
+         (format "^#.*%s: \\(.+\\)" option) nil t)
+        (match-string 1))))
 
 (defun bpe:post-article (&optional update)
   (interactive)
   (lexical-let*
-      ((title (or (bpe:search-title-word)
+      ((title (or (bpe:get-option :title)
                   (read-string "title here: ")))
+       (tags (mapconcat 'identity
+                        (split-string (bpe:get-option :tag) " ") ","))
+       (tags-formatted (if tags (format " --tags \"%s\" " tags) ""))
        (blogger (concat "LANG=" bpe:lang " google blogger "))
        (blog-and-title
         (concat " --blog '" bpe:blog-name "'" " --title '" title "' "))
@@ -101,7 +109,7 @@
                   (buffer-string)))
        (delete (concat blogger "delete " blog-and-title))
        (post   (concat blogger "post --draft -u " bpe:account
-                       blog-and-title content))
+                       tags-formatted blog-and-title content))
        (command (if (or bpe:update-by-default update current-prefix-arg)
                     (concat delete " && " post)
                   post)))
