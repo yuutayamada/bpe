@@ -74,15 +74,15 @@ was non-nil")
 
 (defun bpe:export-html ()
   (interactive)
+  (funcall 'org-html-export-to-html nil nil nil t))
+
+(defun bpe:export-html-old-version ()
   (with-no-warnings
-    (condition-case old-version
-      (org-html-export-to-html nil nil nil t)
-      (error
-       (let ((version (string-to-number
-                       (replace-regexp-in-string "\\." "" org-version))))
-         (if (< version 794)
-             (org-export-as-html 23 nil nil t)
-           (org-export-as-html 23 nil nil nil 'string)))))))
+    (let ((version (string-to-number
+                    (replace-regexp-in-string "\\." "" org-version))))
+      (if (< version 794)
+          (funcall 'org-export-as-html 23 nil nil t)
+        (funcall 'org-export-as-html 23 nil nil nil 'string)))))
 
 (defun bpe:replace (list)
   (loop with to-str = ""
