@@ -37,24 +37,32 @@ article(s)")
   "Attach --yes option when user update(delete old article) if this variable
 was non-nil")
 
+(defvar bpe:tag-list
+  '("p" "ul" "li" "ol" "tbody" "table.+" "caption" "tr"
+    "colgroup" "div" "pre" "code" "h[0-9]"))
 
 (defvar bpe:removing-list
-  '(("\n\\(<p>\\)" 1)
-    ("\\(</?ol>\\)\n+" 1)
-    ("\\(</li>\\)\n+" 1)
-    ("\\(</?tbody>\\)\n+" 1)
-    ("\\(<table.+>\\)\n+" 1)
-    ("\\(</table>\\)\n+" 1)
-    ("\\(</caption>\\)\n+" 1)
-    ("\\(</colgroup>\\)\n+" 1)
-    ("\\(<col class=.+ />\\)\n+" 1)
-    ("\\(</tr>\\)\n+" 1)
-    ("\\(</p>\\)\n+" 1)
-    ("\\(</ul>\\)\n+" 1)
-    ("\\(</h[0-9]>\\)\n" 1)
-    ("\\(<div.+>\\)\n+" 1)
-    ("\\(</div>\\)\n+" 1)
-    ("\\(</pre>\\)\n+" 1)))
+  (append
+   (bpe:generate-regexp bpe:tag-list)
+   '(("\\(<table.+>\\)\n+" 1)
+     ("\\(<col class=.+ />\\)\n+" 1)
+     ("\\(<div.*>\\)\n+" 1))))
+
+
+(defun bpe:generate-regexp (tag-list)
+  (loop with tag-regexp = '()
+        for name in tag-list
+        for tag      = (format "<%s>" name)
+        for endtag   = (replace-regexp-in-string "^<" "</" tag)
+        for left     = `(,(format "\n\\(%s\\)" tag) 1)
+        for right    = `(,(format "\\(%s\\)\n+" tag) 1)
+        for endleft  = `(,(format "\n\\(%s\\)" endtag) 1)
+        for endright = `(,(format "\\(%s\\)\n+" endtag) 1)
+        do (push left     tag-regexp)
+        do (push right    tag-regexp)
+        do (push endleft  tag-regexp)
+        do (push endright tag-regexp)
+        finally return (reverse tag-regexp)))
 
 (defun bpe:create-html-and-fetch-filename ()
   (let* ((org->html-file-name
