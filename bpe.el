@@ -1,4 +1,3 @@
-;;; -*- coding: utf-8 mode: emacs-lisp -*-
 ;;; bpe.el --- Blogger Post progrom for Emacs
 
 ;; Copyright (C) 2012 by Yuta Yamada
@@ -160,5 +159,10 @@ was non-nil")
   (bpe:post-article t))
 
 (provide 'bpe)
+
+;; Local Variables:
+;; coding: utf-8
+;; mode: emacs-lisp
+;; End:
 
 ;;; bpe.el ends here
