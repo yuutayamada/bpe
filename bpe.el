@@ -48,6 +48,14 @@ was non-nil")
      ("\\(<col class=.+ />\\)\n+" 1)
      ("\\(<div.*>\\)\n+" 1))))
 
+;; WIP
+(defvar bpe:tmp-path-file-name "/tmp/emacs-bpe-tmp-file.html")
+(defvar bpe:minify-html-path
+  nil
+  ;; (let ((path
+  ;;  (format "%sminify_html.pl" (file-name-as-directory default-directory))))
+  ;;  (if (file-exists-p path) path ""))
+  )
 
 (defun bpe:generate-regexp (tag-list)
   (loop with tag-regexp = '()
@@ -70,7 +78,10 @@ was non-nil")
            "org$" "html" buffer-file-truename)))
     (bpe:export-html)
     (bpe:replace-newline org->html-file-name)
-    org->html-file-name))
+    (if (and (file-exists-p bpe:minify-html-path)
+             (file-exists-p bpe:tmp-path-file-name))
+        bpe:tmp-path-file-name
+      org->html-file-name)))
 
 (defun bpe:export-html ()
   (interactive)
@@ -97,10 +108,19 @@ was non-nil")
 
 (defun bpe:replace-newline (file)
   (let* ((base (buffer-name)))
-    (find-file file)
-    (bpe:replace bpe:removing-list)
-    (save-buffer)
-    (switch-to-buffer base)))
+    (if (and bpe:minify-html-path
+             (file-exists-p bpe:minify-html-path))
+        (bpe:replace-newline-by-minify-pl file)
+      (find-file file)
+      (bpe:replace bpe:removing-list)
+      (save-buffer)
+      (switch-to-buffer base))))
+
+(defun bpe:replace-newline-by-minify-pl (file)
+  (if (file-exists-p file)
+      (shell-command (format "perl %s %s %s" bpe:minify-html-path file
+                             bpe:tmp-path-file-name))
+    (error (format "%s not found" file))))
 
 (defun bpe:get-option (title-or-tag)
   (interactive)
