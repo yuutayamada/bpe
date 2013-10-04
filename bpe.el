@@ -27,7 +27,7 @@
 ;; google blog
 (defvar bpe:account   "your-user-account@gmail.com")
 (defvar bpe:blog-name "blog-name")
-(defvar bpe:lang      "ja_JP.UTF-8")
+(defvar bpe:lang      (shell-command-to-string "echo -n $LANG"))
 (defvar bpe:update-by-default nil
   "If this value was non-nil, update article if there are same title's
 article(s)")
