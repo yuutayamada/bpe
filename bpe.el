@@ -40,6 +40,21 @@ was non-nil")
   '("p" "ul" "li" "ol" "tbody" "table.+" "caption" "tr"
     "colgroup" "div" "pre" "code" "h[0-9]"))
 
+(defun bpe:generate-regexp (tag-list)
+  (loop with tag-regexp = '()
+        for name in tag-list
+        for tag      = (format "<%s>" name)
+        for endtag   = (replace-regexp-in-string "^<" "</" tag)
+        for left     = `(,(format "\n\\(%s\\)" tag) 1)
+        for right    = `(,(format "\\(%s\\)\n+" tag) 1)
+        for endleft  = `(,(format "\n\\(%s\\)" endtag) 1)
+        for endright = `(,(format "\\(%s\\)\n+" endtag) 1)
+        do (push left     tag-regexp)
+        do (push right    tag-regexp)
+        do (push endleft  tag-regexp)
+        do (push endright tag-regexp)
+        finally return (reverse tag-regexp)))
+
 (defvar bpe:removing-list
   (append
    (bpe:generate-regexp bpe:tag-list)
@@ -55,21 +70,6 @@ was non-nil")
   ;;  (format "%sminify_html.pl" (file-name-as-directory default-directory))))
   ;;  (if (file-exists-p path) path ""))
   )
-
-(defun bpe:generate-regexp (tag-list)
-  (loop with tag-regexp = '()
-        for name in tag-list
-        for tag      = (format "<%s>" name)
-        for endtag   = (replace-regexp-in-string "^<" "</" tag)
-        for left     = `(,(format "\n\\(%s\\)" tag) 1)
-        for right    = `(,(format "\\(%s\\)\n+" tag) 1)
-        for endleft  = `(,(format "\n\\(%s\\)" endtag) 1)
-        for endright = `(,(format "\\(%s\\)\n+" endtag) 1)
-        do (push left     tag-regexp)
-        do (push right    tag-regexp)
-        do (push endleft  tag-regexp)
-        do (push endright tag-regexp)
-        finally return (reverse tag-regexp)))
 
 (defun bpe:create-html-and-fetch-filename ()
   (let* ((org->html-file-name
