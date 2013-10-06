@@ -46,3 +46,13 @@ Maybe first time is you need to accept this program from browser.
 ### Compatibilities
 
 I'm testing org-version 8.1.1.(maint branch).
+
+### Note
+Google Blogger service is inserting newline to the blog if its HTML file
+have newline. So I created to minify html that org-mode output. But
+it didn't solve problem.
+Because org-mode inserting newline into html content's first and end.
+For example <p>\n CONTENT \n</p>.
+So this program deleting those newline by Emacs's regexp replacement.
+Therefore if you use HTML tag in your blog, this program may delete
+newline from your blog's html tag(for example, in org-src-block's html)
