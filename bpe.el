@@ -5,7 +5,7 @@
 ;; Author: Yuta Yamada <cokesboy"at"gmail.com>
 ;; URL: https://github.com/yuutayamada/bpe
 ;; Version: 0.0.1
-;; Keywords: Blogger
+;; Keywords: Blogger, blog
 
 ;;; License:
 ;; This program is free software: you can redistribute it and/or modify
@@ -136,7 +136,11 @@ was non-nil")
          (format "^#.*%s: \\(.+\\)" option) nil t)
         (match-string 1))))
 
+;;;###autoload
 (defun bpe:post-article (&optional update)
+  "Post current file that converted html to your blog of Google Blogger.
+ If you pushed C-u before execute this command, then post article after
+delete same title's article."
   (interactive)
   (lexical-let*
       ((title (or (bpe:get-option :title)
