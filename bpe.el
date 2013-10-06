@@ -77,10 +77,7 @@ was non-nil")
            "org$" "html" buffer-file-truename)))
     (bpe:export-html)
     (bpe:replace-newline org->html-file-name)
-    (if (and (file-exists-p bpe:minify-html-path)
-             (file-exists-p bpe:tmp-path-file-name))
-        bpe:tmp-path-file-name
-      org->html-file-name)))
+    org->html-file-name))
 
 (defun bpe:export-html ()
   (interactive)
