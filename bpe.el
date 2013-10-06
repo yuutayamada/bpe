@@ -84,7 +84,7 @@ was non-nil")
 
 (defun bpe:export-html ()
   (interactive)
-  (funcall 'org-html-export-to-html nil nil nil t))
+  (org-html-export-to-html nil nil nil t))
 
 (defun bpe:export-html-old-version ()
   (with-no-warnings
