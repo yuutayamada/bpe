@@ -167,7 +167,7 @@ delete same title's article."
        (content        (bpe:get-content))
        (delete         (bpe:get-delete-string blog-and-title))
        (post           (bpe:get-post-string   blog-and-title content))
-       (command        (if (or bpe:update-by-default update current-prefix-arg)
+       (command        (if (bpe:update-required-p update)
                            (concat delete " && " post)
                          post)))
     (async-shell-command command "*bpe*")))
@@ -187,6 +187,9 @@ delete same title's article."
 
 (defun bpe:format (&rest list)
   (mapconcat 'identity list " "))
+
+(defun bpe:update-required-p (&optional force)
+  (or bpe:update-by-default current-prefix-arg force))
 
 (defun bpe:update-article ()
   (interactive)
