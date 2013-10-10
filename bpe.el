@@ -172,6 +172,10 @@ delete same title's article."
                   post)))
     (async-shell-command command "*bpe*")))
 
+
+(defun bpe:format (&rest list)
+  (mapconcat 'identity list " "))
+
 (defun bpe:update-article ()
   (interactive)
   (bpe:post-article t))
