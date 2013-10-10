@@ -33,7 +33,7 @@
   "If this value was non-nil, update article if there are same title's
 article(s)")
 (defvar bpe:use-real-post-when-updating nil
-  "")
+  "If non-nil do not attach --draft option when updating.")
 (defvar bpe:no-ask nil
   "Attach --yes option when user update(delete old article) if this variable
 was non-nil")
