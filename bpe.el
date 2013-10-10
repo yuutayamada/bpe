@@ -136,6 +136,11 @@ was non-nil")
          (format "^#.*%s: \\(.+\\)" option) nil t)
         (match-string 1))))
 
+(defun bpe:format-title (raw-title)
+  (let ((title (shell-quote-argument raw-title))
+        (name  (shell-quote-argument bpe:blog-name)))
+    (bpe:format "--blog" name "--title" title)))
+
 ;;;###autoload
 (defun bpe:post-article (&optional update)
   "Post current file that converted html to your blog of Google Blogger.
@@ -149,8 +154,7 @@ delete same title's article."
                         (split-string (bpe:get-option :tag) " ") ","))
        (tags-formatted (if tags (format " --tags \"%s\" " tags) ""))
        (blogger (concat "LANG=" bpe:lang " google blogger "))
-       (blog-and-title
-        (concat " --blog '" bpe:blog-name "'" " --title '" title "' "))
+       (blog-and-title (bpe:format-title title))
        (content (if (string-match "\\.org$" (buffer-name))
                     (bpe:create-html-and-fetch-filename)
                   (buffer-string)))
