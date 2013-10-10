@@ -23,6 +23,7 @@
 
 (eval-when-compile (require 'cl))
 (require 'org)
+(require 'ox-html nil 'noerror)
 
 ;; google blog
 (defvar bpe:account   "your-user-account@gmail.com")
