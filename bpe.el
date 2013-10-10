@@ -36,6 +36,7 @@ article(s)")
   "Attach --yes option when user update(delete old article) if this variable
 was non-nil")
 
+(defvar bpe:command (concat "LANG=" bpe:lang " google blogger "))
 (defvar bpe:tag-list
   '("p" "ul" "li" "ol" "tbody" "table.+" "caption" "tr"
     "colgroup" "div" "pre" "code" "h[0-9]"))
@@ -163,15 +164,17 @@ delete same title's article."
        (content (if (string-match "\\.org$" (buffer-name))
                     (bpe:create-html-and-fetch-filename)
                   (buffer-string)))
-       (delete (concat blogger "delete " blog-and-title
-                       (if bpe:no-ask " --yes" "")))
        (post   (concat blogger "post --draft -u " bpe:account
                        tags-formatted blog-and-title content))
+       (delete (bpe:get-delete-string blog-and-title))
        (command (if (or bpe:update-by-default update current-prefix-arg)
                     (concat delete " && " post)
                   post)))
     (async-shell-command command "*bpe*")))
 
+(defun bpe:get-delete-string (blog-and-title)
+  (bpe:format bpe:command "delete" blog-and-title
+              (if bpe:no-ask "--yes" "")))
 
 (defun bpe:format (&rest list)
   (mapconcat 'identity list " "))
