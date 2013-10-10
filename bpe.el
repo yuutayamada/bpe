@@ -162,7 +162,6 @@ delete same title's article."
   (lexical-let*
       ((title (or (bpe:get-option :title)
                   (read-string "title here: ")))
-       (blogger (concat "LANG=" bpe:lang " google blogger "))
        (blog-and-title (bpe:format-title title))
        (content (if (string-match "\\.org$" (buffer-name))
                     (bpe:create-html-and-fetch-filename)
