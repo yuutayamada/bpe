@@ -147,6 +147,12 @@ was non-nil")
                          (split-string (bpe:get-option :tag) " ") ",")))
     (if tags (format " --tags \"%s\" " tags) "")))
 
+(defun bpe:get-draft-string ()
+  (if (and current-prefix-arg
+           bpe:use-real-post-when-updating)
+      ""
+    " --draft "))
+
 ;;;###autoload
 (defun bpe:post-article (&optional update)
   "Post current file that converted html to your blog of Google Blogger.
@@ -156,21 +162,21 @@ delete same title's article."
   (lexical-let*
       ((title (or (bpe:get-option :title)
                   (read-string "title here: ")))
-       (tags (mapconcat 'identity
-                        (split-string (bpe:get-option :tag) " ") ","))
-       (tags-formatted (if tags (format " --tags \"%s\" " tags) ""))
        (blogger (concat "LANG=" bpe:lang " google blogger "))
        (blog-and-title (bpe:format-title title))
        (content (if (string-match "\\.org$" (buffer-name))
                     (bpe:create-html-and-fetch-filename)
                   (buffer-string)))
-       (post   (concat blogger "post --draft -u " bpe:account
-                       tags-formatted blog-and-title content))
        (delete (bpe:get-delete-string blog-and-title))
+       (post   (bpe:get-post-string   blog-and-title content))
        (command (if (or bpe:update-by-default update current-prefix-arg)
                     (concat delete " && " post)
                   post)))
     (async-shell-command command "*bpe*")))
+
+(defun bpe:get-post-string (blog-and-title content)
+  (bpe:format bpe:command "post" (bpe:get-draft-string)
+              "-u" bpe:account (bpe:get-tags) blog-and-title content))
 
 (defun bpe:get-delete-string (blog-and-title)
   (bpe:format bpe:command "delete" blog-and-title
