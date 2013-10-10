@@ -141,6 +141,11 @@ was non-nil")
         (name  (shell-quote-argument bpe:blog-name)))
     (bpe:format "--blog" name "--title" title)))
 
+(defun bpe:get-tags ()
+  (let ((tags (mapconcat 'identity
+                         (split-string (bpe:get-option :tag) " ") ",")))
+    (if tags (format " --tags \"%s\" " tags) "")))
+
 ;;;###autoload
 (defun bpe:post-article (&optional update)
   "Post current file that converted html to your blog of Google Blogger.
