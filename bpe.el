@@ -140,8 +140,8 @@ was non-nil")
         (match-string 1))))
 
 (defun bpe:format-title (raw-title)
-  (let ((title (shell-quote-argument raw-title))
-        (name  (shell-quote-argument bpe:blog-name)))
+  (let ((title (format "'%s'" raw-title))
+        (name  (format "'%s'" bpe:blog-name)))
     (bpe:format "--blog" name "--title" title)))
 
 (defun bpe:get-tags ()
