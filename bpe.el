@@ -1,4 +1,4 @@
-;;; bpe.el --- Blogger Post progrom for Emacs
+;;; bpe.el --- Blog from Org mode to Blogger
 
 ;; Copyright (C) 2012 by Yuta Yamada
 
