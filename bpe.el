@@ -38,6 +38,12 @@ article(s)")
   "Attach --yes option when user update(delete old article) if this variable
 was non-nil")
 
+(defvar bpe:template "#+TITLE:
+#+OPTIONS: toc:nil \\n:nil num:nil
+#+TAGS:
+#+AUTHOR: "
+  "Template for `bpe:insert-template'")
+
 (defvar bpe:command (concat "LANG=" bpe:lang " google blogger "))
 (defvar bpe:tag-list
   '("p" "ul" "li" "ol" "tbody" "table.?+" "caption" "tr"
@@ -90,6 +96,11 @@ was non-nil")
     (bpe:export-html)
     (bpe:replace-newline org->html-file-name)
     org->html-file-name))
+
+(defun bpe:insert-template ()
+  "Insert blog template"
+  (interactive)
+  (insert bpe:template))
 
 (defun bpe:export-html ()
   (interactive)
