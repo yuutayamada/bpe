@@ -14,20 +14,23 @@ If you are Ubuntu user, you can install by below command:
 ### Configuration
 
 Write below configuration to your emacs configuration file.
-
-    (require 'bpe)
-    (setq bpe:account "your mail address on google blogger")
-    (setq bpe:blog-name "your blog name")
-    (define-key org-mode-map (kbd "C-c C-p") 'bpe:post-article)
-    ;; For Japanese, default is $LANG environment variable.
-    (setq bpe:lang "ja_JP.UTF-8")
+```lisp
+(require 'bpe)
+(require 'htmlize nil 'noerror) ; to fontify source code block on your blog.
+(setq bpe:account "your mail address on google blogger")
+(setq bpe:blog-name "your blog name")
+(define-key org-mode-map (kbd "C-c C-p") 'bpe:post-article)
+(define-key org-mode-map (kbd "C-c C-i") 'bpe:insert-template)
+;; For Japanese, default is $LANG environment variable.
+(setq bpe:lang "ja_JP.UTF-8")
+```
 
 Note: maybe you can't use (kbd C-S-[a-z]) key.
 It doesn't work.(C-c C-p is OK, I'm using, it's depending on org-mode's version..)
 
 ### Usage
-Write org-mode option to blogging org-mode file.
-(The OPTIONS is optional. But maybe nobody there to want display table of content option, isn't it?)
+Insert org-mode option to blogging org-mode file by M-x bpe:insert-template.
+(The OPTIONS is optional. You can change it at bpe:template variable.)
 
     #+TITLE: How to post my blog from Emacs and org-mode?
     #+OPTIONS: toc:nil \n:nil num:nil
