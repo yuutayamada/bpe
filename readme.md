@@ -43,7 +43,10 @@ from minibuffer.
 The TAGS is your Blogger's tag.
 This example's result is Emacs and Blog. It must separate space and can't use ",".
 
-M-x bpe:post-article on org-mode file and then current org-mode file is posted to your Blogger. If you do this command after you push C-u command, then this program will delete same title's article.(update command)
+M-x bpe:post-article on org-mode file and then current org-mode file
+is posted to your Blogger. If you do this command after you push C-u
+command, then this program will delete same title's article.(update
+command)
 Maybe first time is you need to accept this program from browser.
 
 ### Compatibilities
@@ -52,8 +55,8 @@ I'm testing org-version 8.1.1.(maint branch).
 
 ### Note
 Google Blogger service is inserting newline to the blog if its HTML file
-have newline. So I created to minify html that org-mode output. But
-it didn't solve problem.
+have newline. So I created to minify html that org-mode output. But it
+didn't solve problem.
 Because org-mode inserting newline into html content's first and end.
 For example <p>\n CONTENT \n</p>.
 So this program deleting those newline by Emacs's regexp replacement.
