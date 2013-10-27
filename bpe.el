@@ -20,7 +20,9 @@
 ;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;;; Commentary:
 
+;;; Code:
 (eval-when-compile (require 'cl))
 (require 'org)
 (require 'ox-html nil 'noerror)
@@ -76,7 +78,7 @@ was non-nil")
 ;; Google Blogger service is inserting newline to the blog if its HTML file
 ;; have newline. So I created to minify html that org-mode output. But
 ;; it didn't solve problem.
-;; Because org-mode inserting newline into html content's first and end.
+;; Because org-mode insert newline into html content's first and end.
 ;; For example <p>\n CONTENT \n</p>.
 ;; So this program deleting those newline by Emacs's regexp replacement.
 ;; Therefore if you use HTML tag in your blog, this program may delete
@@ -157,6 +159,7 @@ was non-nil")
     (bpe:format "--blog" name "--title" title)))
 
 (defun bpe:get-tags ()
+  "Get tag(s) from current file."
   (lexical-let
       ((tags
         (condition-case err
