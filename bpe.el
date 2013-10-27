@@ -157,8 +157,12 @@ was non-nil")
     (bpe:format "--blog" name "--title" title)))
 
 (defun bpe:get-tags ()
-  (let ((tags (mapconcat 'identity
-                         (split-string (bpe:get-option :tag) " ") ",")))
+  (lexical-let
+      ((tags
+        (condition-case err
+            (mapconcat 'identity
+                       (split-string (bpe:get-option :tag) " ") ",")
+          (error ""))))
     (if tags (format " --tags \"%s\" " tags) "")))
 
 (defun bpe:get-draft-string ()
