@@ -48,14 +48,14 @@ was non-nil")
 
 (defvar bpe:command (concat "LANG=" bpe:lang " google blogger "))
 (defvar bpe:tag-list
-  '("p" "ul" "li" "ol" "tbody" "table.?+" "caption" "tr" "th"
+  '("p" "ul" "li" "ol" "tbody" "table" "caption" "tr" "th" "td"
     "colgroup" "div" "pre" "code" "h[0-9]"))
 
 (defun bpe:generate-regexp (tag-list)
   (loop with tag-regexp = '()
         for name in tag-list
-        for tag      = (format "<%s>" name)
-        for endtag   = (replace-regexp-in-string "^<" "</" tag)
+        for tag      = (format "<%s ?*>"  name)
+        for endtag   = (format "</%s>" name)
         for left     = `(,(format "\n\\(%s\\)"  tag)    1)
         for right    = `(,(format "\\(%s\\)\n+" tag)    1)
         for endleft  = `(,(format "\n\\(%s\\)"  endtag) 1)
