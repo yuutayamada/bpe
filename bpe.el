@@ -187,7 +187,7 @@ delete same title's article."
 (defun bpe:get-content ()
   (if (string-match "\\.org$" (buffer-name))
       (bpe:create-html-and-fetch-filename)
-    (buffer-string)))
+    (error "This is not org format")))
 
 (defun bpe:get-post-string (blog-and-title content)
   (bpe:format bpe:command "post" (bpe:get-draft-string)
