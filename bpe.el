@@ -30,6 +30,15 @@
 ;; google blog
 (defvar bpe:account   "your-user-account@gmail.com")
 (defvar bpe:blog-name "blog-name")
+(defvar bpe:multiple-blog-names nil
+  "Set like below form if you want to use multiple blog name.
+Use matched blog name that you specified directory when you push your
+org file to Blogger.
+
+For example:
+'((\"blogname1\" . \"~/blogname1-directory\")
+  (\"blogname2\" . \"~/blogname2-directory\"))")
+
 (defvar bpe:lang      (shell-command-to-string "echo -n $LANG"))
 (defvar bpe:update-by-default nil
   "If this value was non-nil, update article if there are same title's
@@ -147,8 +156,17 @@ was non-nil")
 
 (defun bpe:format-title (raw-title)
   (let ((title (format "'%s'" raw-title))
-        (name  (format "'%s'" bpe:blog-name)))
+        (name  (format "\"%s\"" (bpe:get-blog-name))))
     (bpe:format "--blog" name "--title" title)))
+
+(defun bpe:get-blog-name ()
+  ""
+  (if bpe:multiple-blog-names
+      (loop for (blogname . directory) in bpe:multiple-blog-names
+            if (string-match (concat "^" (file-truename directory))
+                             buffer-file-name)
+            do (return blogname))
+    bpe:blog-name))
 
 (defun bpe:get-tags ()
   "Get tag(s) from current file."
