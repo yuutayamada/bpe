@@ -89,7 +89,7 @@ was non-nil")
            "org$" "html" buffer-file-truename)))
     (bpe:export-html)
     (bpe:replace-newline org->html-file-name)
-    org->html-file-name))
+    bpe:tmp-path-file-name))
 
 (defun bpe:insert-template ()
   "Insert blog template"
