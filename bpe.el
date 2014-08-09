@@ -66,14 +66,7 @@ was non-nil")
         do (push endright tag-regexp)
         finally return (reverse tag-regexp)))
 
-(defvar bpe:removing-list
-  (append
-   (bpe:generate-regexp bpe:tag-list)
-   '(("\\(</td>\\)\n+" 1)
-     ("\\(</table>\\)\n+" 1)
-     ("\\(<pre.*>\\)\n+" 1)
-     ("\\(<col +class=.+ +/>\\)\n+" 1)
-     ("\\(<div.*>\\)\n+" 1))))
+(defvar bpe:removing-list (bpe:generate-regexp bpe:tag-list))
 
 ;; WIP
 ;; Google Blogger service is inserting newline to the blog if its HTML file
@@ -86,11 +79,9 @@ was non-nil")
 ;; newline from your blog's html tag(for example, in org-src-block's html)
 (defvar bpe:tmp-path-file-name "/tmp/emacs-bpe-tmp-file.html")
 (defvar bpe:minify-html-path
-  nil
-  ;; (let ((path
-  ;;  (format "%sminify_html.pl" (file-name-as-directory default-directory))))
-  ;;  (if (file-exists-p path) path ""))
-  )
+  (let ((current (or load-file-name (buffer-file-name))))
+    (expand-file-name
+     "minify_html.pl" (file-name-directory current))))
 
 (defun bpe:create-html-and-fetch-filename ()
   (let* ((org->html-file-name
@@ -130,10 +121,10 @@ was non-nil")
 
 (defun bpe:replace-newline (file)
   (let* ((base (buffer-name)))
-    (if (and bpe:minify-html-path
-             (file-exists-p bpe:minify-html-path))
-        (bpe:replace-newline-by-minify-pl file)
-      (find-file file)
+    (when (and bpe:minify-html-path
+               (file-exists-p bpe:minify-html-path))
+      (bpe:replace-newline-by-minify-pl file)
+      (find-file bpe:tmp-path-file-name)
       (bpe:replace bpe:removing-list)
       (save-buffer)
       (switch-to-buffer base))))
