@@ -55,7 +55,7 @@ was non-nil")
 #+AUTHOR: "
   "Template for `bpe:insert-template'")
 
-(defvar bpe:command (concat "LANG=" bpe:lang " google blogger "))
+(defvar bpe:command "google blogger")
 (defvar bpe:tag-list
   '("p" "ul" "li" "ol" "tbody" "table" "caption" "tr" "th" "td"
     "colgroup" "div" "pre" "code" "h[0-9]"))
@@ -191,7 +191,8 @@ was non-nil")
 delete same title's article."
   (interactive)
   (lexical-let*
-      ((title      (or (bpe:get-option :title)
+      ((original-lang (getenv "LANG"))
+       (title      (or (bpe:get-option :title)
                        (read-string "title here: ")))
        (blog-and-title (bpe:format-title title))
        (file-name      (bpe:get-filename))
@@ -200,7 +201,9 @@ delete same title's article."
        (command        (if (bpe:update-required-p update)
                            (concat delete " && " post)
                          post)))
-    (async-shell-command command "*bpe*")))
+    (setenv bpe:lang)
+    (async-shell-command command "*bpe*")
+    (setenv original-lang)))
 
 (defun bpe:get-filename ()
   (if (string-match "\\.org$" (buffer-name))
@@ -208,11 +211,11 @@ delete same title's article."
     (error "This is not org format")))
 
 (defun bpe:get-post-string (blog-and-title content)
-  (bpe:format bpe:command "post" (bpe:get-draft-string)
+  (bpe:format (concat "LANG=" bpe:lang) bpe:command "post" (bpe:get-draft-string)
               "-u" bpe:account (bpe:get-tags) blog-and-title content))
 
 (defun bpe:get-delete-string (blog-and-title)
-  (bpe:format bpe:command "delete" blog-and-title
+  (bpe:format (concat "LANG=" bpe:lang) bpe:command "delete" blog-and-title
               (if bpe:no-ask "--yes" "")))
 
 (defun bpe:format (&rest list)
