@@ -1,4 +1,4 @@
-;;; bpe.el --- Blog from Org mode to Blogger
+;;; bpe.el --- Blog from Org mode to Blogger -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2012 by Yuta Yamada
 
@@ -23,7 +23,7 @@
 ;;; Commentary:
 
 ;;; Code:
-(eval-when-compile (require 'cl))
+(require 'cl-lib)
 (require 'org)
 (require 'ox-html nil 'noerror)
 
@@ -61,19 +61,19 @@ was non-nil")
     "colgroup" "div" "pre" "code" "h[0-9]"))
 
 (defun bpe:generate-regexp (tag-list)
-  (loop with tag-regexp = '()
-        for name in tag-list
-        for tag      = (format "<%s ?*>"  name)
-        for endtag   = (format "</%s>" name)
-        for left     = `(,(format "\n\\(%s\\)"  tag)    1)
-        for right    = `(,(format "\\(%s\\)\n+" tag)    1)
-        for endleft  = `(,(format "\n\\(%s\\)"  endtag) 1)
-        for endright = `(,(format "\\(%s\\)\n+" endtag) 1)
-        do (push left     tag-regexp)
-        do (push right    tag-regexp)
-        do (push endleft  tag-regexp)
-        do (push endright tag-regexp)
-        finally return (reverse tag-regexp)))
+  (cl-loop with tag-regexp = '()
+           for name in tag-list
+           for tag      = (format "<%s ?*>"  name)
+           for endtag   = (format "</%s>" name)
+           for left     = `(,(format "\n\\(%s\\)"  tag)    1)
+           for right    = `(,(format "\\(%s\\)\n+" tag)    1)
+           for endleft  = `(,(format "\n\\(%s\\)"  endtag) 1)
+           for endright = `(,(format "\\(%s\\)\n+" endtag) 1)
+           do (push left     tag-regexp)
+           do (push right    tag-regexp)
+           do (push endleft  tag-regexp)
+           do (push endright tag-regexp)
+           finally return (reverse tag-regexp)))
 
 (defvar bpe:removing-list (bpe:generate-regexp bpe:tag-list))
 
@@ -118,15 +118,15 @@ was non-nil")
         (funcall 'org-export-as-html 23 nil nil nil 'string)))))
 
 (defun bpe:replace (list)
-  (loop with to-str = ""
-        for (regexp to-string) in list do
-        (goto-char (point-min))
-        (while (re-search-forward regexp nil t)
-          (typecase to-string
-            (number (setq to-str (match-string to-string))
-                    (replace-match to-str nil nil))
-            (string
-             (replace-match to-string nil nil))))))
+  (cl-loop with to-str = ""
+           for (regexp to-string) in list do
+           (goto-char (point-min))
+           (while (re-search-forward regexp nil t)
+             (cl-typecase to-string
+               (number (setq to-str (match-string to-string))
+                       (replace-match to-str nil nil))
+               (string
+                (replace-match to-string nil nil))))))
 
 (defun bpe:replace-newline (file)
   (let* ((base (buffer-name)))
@@ -147,7 +147,7 @@ was non-nil")
 (defun bpe:get-option (title-or-tag)
   (interactive)
   (goto-char (point-min))
-  (let ((option (case title-or-tag
+  (let ((option (cl-case title-or-tag
                   (:title "TITLE")
                   (:tag   "TAGS"))))
     (if (re-search-forward
@@ -162,20 +162,19 @@ was non-nil")
 (defun bpe:get-blog-name ()
   ""
   (if bpe:multiple-blog-names
-      (loop for (blogname . directory) in bpe:multiple-blog-names
-            if (string-match (concat "^" (file-truename directory))
-                             buffer-file-name)
-            do (return blogname))
+      (cl-loop for (blogname . directory) in bpe:multiple-blog-names
+               if (string-match (concat "^" (file-truename directory))
+                                buffer-file-name)
+               do (cl-return blogname))
     bpe:blog-name))
 
 (defun bpe:get-tags ()
   "Get tag(s) from current file."
-  (lexical-let
-      ((tags
-        (condition-case err
-            (mapconcat 'identity
-                       (split-string (bpe:get-option :tag) " ") ",")
-          (error ""))))
+  (let ((tags
+         (condition-case _err
+             (mapconcat 'identity
+                        (split-string (bpe:get-option :tag) " ") ",")
+           (error ""))))
     (if tags (format " --tags \"%s\" " tags) "")))
 
 (defun bpe:get-draft-string ()
@@ -190,14 +189,13 @@ was non-nil")
  If you pushed C-u before execute this command, then post article after
 delete same title's article."
   (interactive)
-  (lexical-let*
-      ((original-lang (getenv "LANG"))
-       (title      (or (bpe:get-option :title)
-                       (read-string "title here: ")))
-       (blog-and-title (bpe:format-title title))
-       (file-name
-        (replace-regexp-in-string "\\.org$" ".html"
-                                  (expand-file-name buffer-file-truename))))
+  (let* ((original-lang (getenv "LANG"))
+         (title      (or (bpe:get-option :title)
+                         (read-string "title here: ")))
+         (blog-and-title (bpe:format-title title))
+         (file-name
+          (replace-regexp-in-string "\\.org$" ".html"
+                                    (expand-file-name buffer-file-truename))))
     (setenv bpe:lang)
     (bpe:export-html)
     (bpe:replace-newline file-name)
