@@ -9,11 +9,14 @@ If you are Ubuntu user, you can install by below command:
 
     (sudo) apt-get install googlecl
 
-(I don't know other situation, sorry. Try googling...)
+Also you need to install html-minify package of npm from version 0.1.0.
+
+See also https://www.npmjs.com/package/html-minify
 
 ### Configuration
 
 Write below configuration to your emacs configuration file.
+
 ```lisp
 (require 'bpe)
 (require 'htmlize nil 'noerror) ; to fontify source code block on your blog.
@@ -24,9 +27,6 @@ Write below configuration to your emacs configuration file.
 ;; For Japanese, default is $LANG environment variable.
 (setq bpe:lang "ja_JP.UTF-8")
 ```
-
-Note: maybe you can't use (kbd C-S-[a-z]) key.
-It doesn't work.(C-c C-p is OK, I'm using, it's depending on org-mode's version..)
 
 ### Usage
 Insert org-mode option to blogging org-mode file by M-x bpe:insert-template.
@@ -49,16 +49,11 @@ command, then this program will delete same title's article.(update
 command)
 Maybe first time is you need to accept this program from browser.
 
-### Compatibilities
+### Compatibility
 
-I'm testing org-version 8.1.1.(maint branch).
+I'm testing org-version 8.3beta.
 
 ### Note
-Google Blogger service is inserting newline to the blog if its HTML file
-have newline. So I created to minify html that org-mode output. But it
-didn't solve problem.
-Because org-mode insert newline into html content's first and end.
-For example <p>\n CONTENT \n</p>.
-So this program deleting those newline by Emacs's regexp replacement.
-Therefore if you use HTML tag in your blog, this program may delete
-newline from your blog's html tag(for example, in org-src-block's html)
+bpe.el had below problem until version 0.1.0, but it was solved from the version.(probably)
+
+~~Google Blogger service is inserting newline to the blog if its HTML file have newline. So I created to minify html that org-mode output. But it didn't solve problem. Because org-mode insert newline into html content's first and end. For example `<p>\n CONTENT \n</p>`. So this program deleting those newline by Emacs's regexp replacement. Therefore if you use HTML tag in your blog, this program may delete newline from your blog's html tag(for example, in org-src-block's html)~~

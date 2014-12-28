@@ -1,10 +1,10 @@
 ;;; bpe.el --- Blog from Org mode to Blogger -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 by Yuta Yamada
+;; Copyright (C) 2012, 2013, 2014 by Yuta Yamada
 
 ;; Author: Yuta Yamada <cokesboy"at"gmail.com>
 ;; URL: https://github.com/yuutayamada/bpe
-;; Version: 0.0.1
+;; Version: 0.1.0
 ;; Keywords: Blogger, blog
 
 ;;; License:
@@ -21,7 +21,15 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;;; Commentary:
-
+;; Configuration sample
+;; (require 'bpe)
+;; (setq ;; whether ask or not if you update your blog post by using bpe
+;;       bpe:no-ask t
+;;       ;; Set your language configuration if needed
+;;       ;; default is your LANG environment.
+;;       bpe:lang "ja_JP.UTF-8"
+;;       ;; do not use --draft when updating(note your view count may disappear)
+;;       bpe:use-real-post-when-updating t)
 ;;; Code:
 (require 'cl-lib)
 (require 'org)
