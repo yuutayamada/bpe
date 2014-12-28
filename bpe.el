@@ -133,6 +133,7 @@ delete same title's article."
     (shell-command
      (format "htmlminify -o %s %s" bpe:tempfile file-name))
     (bpe:post blog-and-title bpe:tempfile update)
+    (delete-file file-name)
     (setenv original-lang)))
 
 (defun bpe:post (blog-and-title file-name update)
