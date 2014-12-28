@@ -55,6 +55,8 @@ was non-nil")
 #+AUTHOR: "
   "Template for `bpe:insert-template'")
 
+(defvar bpe:tempfile "/tmp/bpe-minified.html")
+
 (defvar bpe:command "google blogger")
 
 (defun bpe:insert-template ()
@@ -125,13 +127,12 @@ delete same title's article."
          (blog-and-title (bpe:format-title title))
          (file-name
           (replace-regexp-in-string "\\.org$" ".html"
-                                    (expand-file-name buffer-file-truename)))
-         (tmpfile "/tmp/bpe-minified.html"))
+                                    (expand-file-name buffer-file-truename))))
     (setenv bpe:lang)
     (bpe:export-html)
     (shell-command
-     (format "htmlminify -o %s %s" tmpfile file-name))
-    (bpe:post blog-and-title tmpfile update)
+     (format "htmlminify -o %s %s" bpe:tempfile file-name))
+    (bpe:post blog-and-title bpe:tempfile update)
     (setenv original-lang)))
 
 (defun bpe:post (blog-and-title file-name update)
