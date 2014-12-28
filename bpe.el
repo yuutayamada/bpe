@@ -1,10 +1,10 @@
-;;; bpe.el --- Blog from Org mode to Blogger
+;;; bpe.el --- Blog from Org mode to Blogger -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 by Yuta Yamada
+;; Copyright (C) 2012, 2013, 2014 by Yuta Yamada
 
 ;; Author: Yuta Yamada <cokesboy"at"gmail.com>
 ;; URL: https://github.com/yuutayamada/bpe
-;; Version: 0.0.1
+;; Version: 0.1.0
 ;; Keywords: Blogger, blog
 
 ;;; License:
@@ -21,15 +21,32 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;;; Commentary:
-
+;; Configuration sample
+;; (require 'bpe)
+;; (setq ;; whether ask or not if you update your blog post by using bpe
+;;       bpe:no-ask t
+;;       ;; Set your language configuration if needed
+;;       ;; default is your LANG environment.
+;;       bpe:lang "ja_JP.UTF-8"
+;;       ;; do not use --draft when updating(note your view count may disappear)
+;;       bpe:use-real-post-when-updating t)
 ;;; Code:
-(eval-when-compile (require 'cl))
+(require 'cl-lib)
 (require 'org)
 (require 'ox-html nil 'noerror)
 
 ;; google blog
 (defvar bpe:account   "your-user-account@gmail.com")
 (defvar bpe:blog-name "blog-name")
+(defvar bpe:multiple-blog-names nil
+  "Set like below form if you want to use multiple blog name.
+Use matched blog name that you specified directory when you push your
+org file to Blogger.
+
+For example:
+'((\"blogname1\" . \"~/blogname1-directory\")
+  (\"blogname2\" . \"~/blogname2-directory\"))")
+
 (defvar bpe:lang      (shell-command-to-string "echo -n $LANG"))
 (defvar bpe:update-by-default nil
   "If this value was non-nil, update article if there are same title's
@@ -46,59 +63,9 @@ was non-nil")
 #+AUTHOR: "
   "Template for `bpe:insert-template'")
 
-(defvar bpe:command (concat "LANG=" bpe:lang " google blogger "))
-(defvar bpe:tag-list
-  '("p" "ul" "li" "ol" "tbody" "table.?+" "caption" "tr" "th"
-    "colgroup" "div" "pre" "code" "h[0-9]"))
+(defvar bpe:tempfile "/tmp/bpe-minified.html")
 
-(defun bpe:generate-regexp (tag-list)
-  (loop with tag-regexp = '()
-        for name in tag-list
-        for tag      = (format "<%s>" name)
-        for endtag   = (replace-regexp-in-string "^<" "</" tag)
-        for left     = `(,(format "\n\\(%s\\)"  tag)    1)
-        for right    = `(,(format "\\(%s\\)\n+" tag)    1)
-        for endleft  = `(,(format "\n\\(%s\\)"  endtag) 1)
-        for endright = `(,(format "\\(%s\\)\n+" endtag) 1)
-        do (push left     tag-regexp)
-        do (push right    tag-regexp)
-        do (push endleft  tag-regexp)
-        do (push endright tag-regexp)
-        finally return (reverse tag-regexp)))
-
-(defvar bpe:removing-list
-  (append
-   (bpe:generate-regexp bpe:tag-list)
-   '(("\\(</td>\\)\n+" 1)
-     ("\\(</table>\\)\n+" 1)
-     ("\\(<pre.*>\\)\n+" 1)
-     ("\\(<col +class=.+ +/>\\)\n+" 1)
-     ("\\(<div.*>\\)\n+" 1))))
-
-;; WIP
-;; Google Blogger service is inserting newline to the blog if its HTML file
-;; have newline. So I created to minify html that org-mode output. But
-;; it didn't solve problem.
-;; Because org-mode insert newline into html content's first and end.
-;; For example <p>\n CONTENT \n</p>.
-;; So this program deleting those newline by Emacs's regexp replacement.
-;; Therefore if you use HTML tag in your blog, this program may delete
-;; newline from your blog's html tag(for example, in org-src-block's html)
-(defvar bpe:tmp-path-file-name "/tmp/emacs-bpe-tmp-file.html")
-(defvar bpe:minify-html-path
-  nil
-  ;; (let ((path
-  ;;  (format "%sminify_html.pl" (file-name-as-directory default-directory))))
-  ;;  (if (file-exists-p path) path ""))
-  )
-
-(defun bpe:create-html-and-fetch-filename ()
-  (let* ((org->html-file-name
-          (replace-regexp-in-string
-           "org$" "html" buffer-file-truename)))
-    (bpe:export-html)
-    (bpe:replace-newline org->html-file-name)
-    org->html-file-name))
+(defvar bpe:command "google blogger")
 
 (defun bpe:insert-template ()
   "Insert blog template"
@@ -117,37 +84,10 @@ was non-nil")
           (funcall 'org-export-as-html 23 nil nil t)
         (funcall 'org-export-as-html 23 nil nil nil 'string)))))
 
-(defun bpe:replace (list)
-  (loop with to-str = ""
-        for (regexp to-string) in list do
-        (goto-char (point-min))
-        (while (re-search-forward regexp nil t)
-          (typecase to-string
-            (number (setq to-str (match-string to-string))
-                    (replace-match to-str nil nil))
-            (string
-             (replace-match to-string nil nil))))))
-
-(defun bpe:replace-newline (file)
-  (let* ((base (buffer-name)))
-    (if (and bpe:minify-html-path
-             (file-exists-p bpe:minify-html-path))
-        (bpe:replace-newline-by-minify-pl file)
-      (find-file file)
-      (bpe:replace bpe:removing-list)
-      (save-buffer)
-      (switch-to-buffer base))))
-
-(defun bpe:replace-newline-by-minify-pl (file)
-  (if (file-exists-p file)
-      (shell-command (format "perl %s %s %s" bpe:minify-html-path file
-                             bpe:tmp-path-file-name))
-    (error (format "%s not found" file))))
-
 (defun bpe:get-option (title-or-tag)
   (interactive)
   (goto-char (point-min))
-  (let ((option (case title-or-tag
+  (let ((option (cl-case title-or-tag
                   (:title "TITLE")
                   (:tag   "TAGS"))))
     (if (re-search-forward
@@ -156,17 +96,25 @@ was non-nil")
 
 (defun bpe:format-title (raw-title)
   (let ((title (format "'%s'" raw-title))
-        (name  (format "'%s'" bpe:blog-name)))
+        (name  (format "\"%s\"" (bpe:get-blog-name))))
     (bpe:format "--blog" name "--title" title)))
+
+(defun bpe:get-blog-name ()
+  ""
+  (if bpe:multiple-blog-names
+      (cl-loop for (blogname . directory) in bpe:multiple-blog-names
+               if (string-match (concat "^" (file-truename directory))
+                                buffer-file-name)
+               do (cl-return blogname))
+    bpe:blog-name))
 
 (defun bpe:get-tags ()
   "Get tag(s) from current file."
-  (lexical-let
-      ((tags
-        (condition-case err
-            (mapconcat 'identity
-                       (split-string (bpe:get-option :tag) " ") ",")
-          (error ""))))
+  (let ((tags
+         (condition-case _err
+             (mapconcat 'identity
+                        (split-string (bpe:get-option :tag) " ") ",")
+           (error ""))))
     (if tags (format " --tags \"%s\" " tags) "")))
 
 (defun bpe:get-draft-string ()
@@ -181,29 +129,35 @@ was non-nil")
  If you pushed C-u before execute this command, then post article after
 delete same title's article."
   (interactive)
-  (lexical-let*
-      ((title      (or (bpe:get-option :title)
-                       (read-string "title here: ")))
-       (blog-and-title (bpe:format-title title))
-       (content        (bpe:get-content))
-       (delete         (bpe:get-delete-string blog-and-title))
-       (post           (bpe:get-post-string   blog-and-title content))
-       (command        (if (bpe:update-required-p update)
-                           (concat delete " && " post)
-                         post)))
+  (let* ((original-lang (getenv "LANG"))
+         (title      (or (bpe:get-option :title)
+                         (read-string "title here: ")))
+         (blog-and-title (bpe:format-title title))
+         (file-name
+          (replace-regexp-in-string "\\.org$" ".html"
+                                    (expand-file-name buffer-file-truename))))
+    (setenv bpe:lang)
+    (bpe:export-html)
+    (shell-command
+     (format "htmlminify -o %s %s" bpe:tempfile file-name))
+    (bpe:post blog-and-title bpe:tempfile update)
+    (delete-file file-name)
+    (setenv original-lang)))
+
+(defun bpe:post (blog-and-title file-name update)
+  (let* ((delete  (bpe:get-delete-string blog-and-title))
+         (post    (bpe:get-post-string   blog-and-title file-name))
+         (command (if (bpe:update-required-p update)
+                      (concat delete " && " post)
+                    post)))
     (async-shell-command command "*bpe*")))
 
-(defun bpe:get-content ()
-  (if (string-match "\\.org$" (buffer-name))
-      (bpe:create-html-and-fetch-filename)
-    (buffer-string)))
-
 (defun bpe:get-post-string (blog-and-title content)
-  (bpe:format bpe:command "post" (bpe:get-draft-string)
+  (bpe:format (concat "LANG=" bpe:lang) bpe:command "post" (bpe:get-draft-string)
               "-u" bpe:account (bpe:get-tags) blog-and-title content))
 
 (defun bpe:get-delete-string (blog-and-title)
-  (bpe:format bpe:command "delete" blog-and-title
+  (bpe:format (concat "LANG=" bpe:lang) bpe:command "delete" blog-and-title
               (if bpe:no-ask "--yes" "")))
 
 (defun bpe:format (&rest list)
